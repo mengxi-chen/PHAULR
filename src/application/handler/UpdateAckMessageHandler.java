@@ -16,7 +16,7 @@ public class UpdateAckMessageHandler implements IMessageHandler
 	{
 		UpdateAckMessage update_ack_msg = (UpdateAckMessage) msg;
 
-		System.out.println(" *********** Receive an UpdateAckMessage: " + update_ack_msg.toString() + " **************");
+//		System.out.println(" *********** Receive an UpdateAckMessage: " + update_ack_msg.toString() + " **************");
 		logger.info(" *********** Receive an UpdateAckMessage: " + update_ack_msg.toString() + " **************");
 
 		Client.INSTANCE.receiveUpdateAckMessage(update_ack_msg);

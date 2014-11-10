@@ -12,6 +12,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+import org.apache.log4j.Logger;
+
 import messaging.message.IPMessage;
 import messaging.message.MessageGid;
 import messaging.message.QueryMessage;
@@ -19,7 +21,6 @@ import messaging.message.UpdateMessage;
 import storage.datastructure.MultipartTimestamp;
 import application.message.QueryAckMessage;
 import application.message.UpdateAckMessage;
-
 import communication.Address;
 import communication.CommunicationService;
 import communication.Configuration;
@@ -33,6 +34,8 @@ import communication.Configuration;
  */
 public class FrontEnd
 {
+	Logger logger = Logger.getLogger(FrontEnd.class.getName());
+	
 	// my own address
 	private Address addr;
 
@@ -120,6 +123,8 @@ public class FrontEnd
 		IPMessage update_msg = new UpdateMessage(this.addr, prev, op, umid);
 		update_msg.setIssueTime(System.currentTimeMillis());
 		
+		logger.info(update_msg.getMsgGid() + "\t Issue Time \t" + update_msg.getIssueTime());
+		
 		CommunicationService.INSTACNE.sendMsg(this.default_contact_replica_addr, update_msg);
 
 		this.msg_waiting_queue.put(umid, update_msg);
@@ -138,6 +143,8 @@ public class FrontEnd
 		QueryMessage query_msg = new QueryMessage(this.addr, prev, op, qmid);
 		query_msg.setIssueTime(System.currentTimeMillis());
 		
+		logger.info(query_msg.getMsgGid() + "\t Issue Time \t" + query_msg.getIssueTime());
+
 		CommunicationService.INSTACNE.sendMsg(this.default_contact_replica_addr, query_msg);
 
 		this.msg_waiting_queue.put(qmid, query_msg);
@@ -154,6 +161,8 @@ public class FrontEnd
 		
 		MessageGid umid = update_ack_msg.getUmid();
 
+		logger.info(umid + "\t Ack Time \t" + update_ack_msg.getAckTime());
+
 		this.msg_waiting_queue.remove(umid);
 
 		this.mid_ts_map.put(umid, update_ack_msg.getUpdateTs());
@@ -164,6 +173,8 @@ public class FrontEnd
 		query_ack_msg.setAckTime(System.currentTimeMillis());
 		
 		MessageGid qmid = query_ack_msg.getQmid();
+
+		logger.info(qmid + "\t Ack Time \t" + query_ack_msg.getAckTime());
 
 		this.msg_waiting_queue.remove(qmid);
 

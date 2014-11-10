@@ -5,7 +5,8 @@ import messaging.message.UpdateMessage;
 import messaging.message.MessageGid;
 import storage.datastructure.MultipartTimestamp;
 
-public class UpdateAckMessage extends IPMessage  {
+public class UpdateAckMessage extends IPMessage  
+{
 	private static final long serialVersionUID = -8130291980160771455L;
 
 	// the identifier of {@link UpdateMessage}

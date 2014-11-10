@@ -17,7 +17,7 @@ public class UpdateMessageHandler implements IMessageHandler
 	public void handleMessage(IPMessage msg)
 	{
 		msg.setEventualTime(System.currentTimeMillis());
-		logger.info(msg.getMsgGid() + "\n" + msg.getEventualTime());
+		logger.info(msg.getMsgGid() + "\t Eventual Time \t" + msg.getEventualTime());
 		
 		UpdateMessage update_msg = (UpdateMessage) msg;
 		

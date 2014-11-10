@@ -16,7 +16,7 @@ public class QueryMessageHandler implements IMessageHandler
 	public void handleMessage(IPMessage msg)
 	{
 		msg.setEventualTime(System.currentTimeMillis());
-		logger.info(msg.getMsgGid() + "\n" + msg.getEventualTime());
+		logger.info(msg.getMsgGid() + "\t Eventual Time \t" + msg.getEventualTime());
 
 		QueryMessage query_msg = (QueryMessage) msg;
 
@@ -35,7 +35,7 @@ public class QueryMessageHandler implements IMessageHandler
 			 */
 			//				val = apply(val, query_msg.get_op());
 
-			QueryAckMessage query_ack_msg = new QueryAckMessage(query_msg.getMessageGid(), val_ts);
+			QueryAckMessage query_ack_msg = new QueryAckMessage(query_msg.getMsgGid(), val_ts);
 			CommunicationService.INSTACNE.sendMsg(msg.getSenderAddr(), query_ack_msg);
 		}
 		else

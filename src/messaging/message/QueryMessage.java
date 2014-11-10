@@ -11,7 +11,7 @@ public class QueryMessage extends IPMessage
 	private MultipartTimestamp prev;
 	private String op;
 
-	private MessageGid qmid;
+//	private MessageGid qmid;
 
 	/**
 	 * Constructor of {@link QueryMessage}
@@ -27,7 +27,8 @@ public class QueryMessage extends IPMessage
 
 		this.prev = label;
 		this.op = operation;
-		this.qmid = qmid;
+		
+		super.msg_id = qmid;
 	}
 
 	public QueryMessage(MultipartTimestamp prev, String op)
@@ -46,18 +47,13 @@ public class QueryMessage extends IPMessage
 		return this.op;
 	}
 
-	public MessageGid getMessageGid()
-	{
-		return this.qmid;
-	}
-
 	public String toString()
 	{
 		StringBuilder sb = new StringBuilder();
 
 		sb.append(super.toString())
 			.append("Prev: ").append(this.prev.toString()).append(";")
-			.append("QMessageId: ").append(this.qmid.toString());
+			.append("QMessageId: ").append(super.msg_id.toString());
 
 		return sb.toString();
 	}

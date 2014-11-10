@@ -163,7 +163,7 @@ public enum Replica
 	 */
 	public void delayQueryMessage(QueryMessage query_msg)
 	{
-		this.query_msg_waiting_queue.put(query_msg.getMessageGid(), query_msg);
+		this.query_msg_waiting_queue.put(query_msg.getMsgGid(), query_msg);
 	}
 
 	public static void main(String[] args)

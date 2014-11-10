@@ -12,7 +12,6 @@ public class UpdateMessage extends IPMessage
 	private MultipartTimestamp prev;
 	private final String op;
 	private MultipartTimestamp update_ts; // update's timestamp = return message
-//	private MessageGid umid;
 
 	/**
 	 * Constructor of an {@link UpdateMessage}
@@ -54,11 +53,6 @@ public class UpdateMessage extends IPMessage
 	public MultipartTimestamp getUpdateTs(){
 		return update_ts;
 	}
-
-//	public MessageGid getUmid()
-//	{
-//		return super.msg_id;
-//	}
 
 	@Override
 	public String toString()
