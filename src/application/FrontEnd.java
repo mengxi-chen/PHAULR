@@ -5,22 +5,26 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-
-import org.apache.log4j.Logger;
 
 import messaging.message.IPMessage;
 import messaging.message.MessageGid;
 import messaging.message.QueryMessage;
 import messaging.message.UpdateMessage;
+
+import org.apache.log4j.Logger;
+
 import storage.datastructure.MultipartTimestamp;
 import application.message.QueryAckMessage;
 import application.message.UpdateAckMessage;
+
 import communication.Address;
 import communication.CommunicationService;
 import communication.Configuration;
@@ -59,6 +63,8 @@ public class FrontEnd
 	 *
 	 * Use ConcurrentHashMap to resolve the java.util.ConcurrentModificationException
 	 * See http://stackoverflow.com/q/26621907/1833118
+	 * 
+	 * FIXME: they are not necessarily executed!
 	 */
 	private ConcurrentHashMap<MessageGid, MultipartTimestamp> mid_ts_map = new ConcurrentHashMap<>();
 
@@ -117,10 +123,10 @@ public class FrontEnd
 	 *
 	 * <b>Note:</b> The update requests are not delayed.
 	 */
-	public void issueUpdateRequest(MultipartTimestamp prev, String op)
+	public void issueUpdateRequest(Set<MessageGid> deps, MultipartTimestamp prev, String op)
 	{
 		MessageGid umid = new MessageGid(this.addr, seqno++);
-		IPMessage update_msg = new UpdateMessage(this.addr, prev, op, umid);
+		IPMessage update_msg = new UpdateMessage(this.addr, deps, prev, op, umid);
 		update_msg.setIssueTime(System.currentTimeMillis());
 		
 		logger.info(update_msg.getMsgGid() + "\t Issue Time \t" + update_msg.getIssueTime());
@@ -137,10 +143,10 @@ public class FrontEnd
 	 *
 	 * <b>Note:</b> The query requests may be delayed.
 	 */
-	public void issueQueryRequest(MultipartTimestamp prev, String op)
+	public void issueQueryRequest(Set<MessageGid> deps, MultipartTimestamp prev, String op)
 	{
 		MessageGid qmid = new MessageGid(this.addr, seqno++);
-		QueryMessage query_msg = new QueryMessage(this.addr, prev, op, qmid);
+		QueryMessage query_msg = new QueryMessage(this.addr, deps, prev, op, qmid);
 		query_msg.setIssueTime(System.currentTimeMillis());
 		
 		logger.info(query_msg.getMsgGid() + "\t Issue Time \t" + query_msg.getIssueTime());
@@ -182,35 +188,47 @@ public class FrontEnd
 	}
 
 	/**
-	 * Randomly generate "prev" parameter for requests
-	 * @return
+	 * Randomly generate "prev" (deps) parameter for requests
+	 * @return an array of {@link MessageGid}
 	 */
-	public MultipartTimestamp generateRandomPrev()
+	public Set<MessageGid> generateRandomDeps()
 	{
 		Random rand = new Random();
 
-		MultipartTimestamp prev = new MultipartTimestamp();
+		MessageGid[] msg_gid_array = (MessageGid[]) this.mid_ts_map.keySet().toArray(new MessageGid[mid_ts_map.size()]);
+		int size = msg_gid_array.length;
 
-		MultipartTimestamp[] ts_array = (MultipartTimestamp[]) this.mid_ts_map.values().toArray(new MultipartTimestamp[mid_ts_map.size()]);
-
-		int size = ts_array.length;
-
+		HashSet<MessageGid> msg_gid_set = new HashSet<>();
 		if (size > 0)
 		{
 			int start = rand.nextInt(size);
 			int end = rand.nextInt(size);
-
 			if (start < end)
-				for (int index = start; index < end; index++)
-					prev.merge(ts_array[index]);
+				for (int index = start; index < end; index++) 
+					msg_gid_set.add(msg_gid_array[index]);
 			else
 				for (int index = end; index < start; index++)
-					prev.merge(ts_array[index]);
+					msg_gid_set.add(msg_gid_array[index]);
 		}
-
-		return prev;
+		
+		return msg_gid_set;
 	}
 
+	/**
+	 * generate the "prev" label 
+	 * @param msg_gid_array
+	 * @return
+	 */
+	public MultipartTimestamp generateMpts(Set<MessageGid> msg_gid_array)
+	{
+		MultipartTimestamp mpts = new MultipartTimestamp();
+		
+		for (MessageGid msg_gid : msg_gid_array) 
+			mpts.merge(this.mid_ts_map.get(msg_gid));
+		
+		return mpts;
+	}
+	
 	/**
 	 * Configure the front end:
 	 * parse the "config_client" file to

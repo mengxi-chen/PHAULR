@@ -7,11 +7,13 @@
 package test;
 
 import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedBlockingDeque;
 
 import messaging.message.IPMessage;
+import messaging.message.MessageGid;
 import messaging.message.QueryMessage;
 import messaging.message.UpdateMessage;
 
@@ -21,6 +23,7 @@ import org.uncommons.maths.random.MersenneTwisterRNG;
 
 import storage.datastructure.MultipartTimestamp;
 import application.Client;
+import application.FrontEnd;
 
 public class PoissonWorkloadGenerator implements Runnable
 {
@@ -66,14 +69,15 @@ public class PoissonWorkloadGenerator implements Runnable
 
 		Thread.sleep(interval);
 
-		// generate requests randomly
-		MultipartTimestamp prev = Client.INSTANCE.getFrontEnd().generateRandomPrev();
-
+		// generate "deps" and "prev"
+		Set<MessageGid> deps = Client.INSTANCE.getFrontEnd().generateRandomDeps();
+		MultipartTimestamp prev = Client.INSTANCE.getFrontEnd().generateMpts(deps);
+		
 		boolean type = this.rand_type.nextBoolean();
 		if (type)	// issue an update request
-			return new UpdateMessage(prev, "UPDATE");
+			return new UpdateMessage(deps, prev, "UPDATE");
 		else	// issue a query request
-			return new QueryMessage(prev, "QUERY");
+			return new QueryMessage(deps, prev, "QUERY");
 	}
 
 	/**

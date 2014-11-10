@@ -22,24 +22,24 @@ public enum Client
 		this.fe.start();
 	}
 
-	public void issueUpdateRequest(MultipartTimestamp prev, String op)
-	{
-		this.fe.issueUpdateRequest(prev, op);
-	}
+//	public void issueUpdateRequest(MultipartTimestamp prev, String op)
+//	{
+//		this.fe.issueUpdateRequest(prev, op);
+//	}
 
 	public void issueUpdateRequest(UpdateMessage update_msg)
 	{
-		this.issueUpdateRequest(update_msg.getPrev(), update_msg.get_op());
+		this.fe.issueUpdateRequest(update_msg.getDeps(), update_msg.getPrev(), update_msg.get_op());
 	}
 
-	public void issueQueryRequest(MultipartTimestamp prev, String op)
-	{
-		this.fe.issueQueryRequest(prev, op);
-	}
+//	public void issueQueryRequest(MultipartTimestamp prev, String op)
+//	{
+//		this.fe.issueQueryRequest(prev, op);
+//	}
 
 	public void issueQueryRequest(QueryMessage query_msg)
 	{
-		this.issueQueryRequest(query_msg.getPrev(), query_msg.getOp());
+		this.fe.issueQueryRequest(query_msg.getDeps(), query_msg.getPrev(), query_msg.getOp());
 	}
 
 	public void receiveUpdateAckMessage(UpdateAckMessage update_ack_msg)

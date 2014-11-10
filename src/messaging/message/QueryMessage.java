@@ -1,5 +1,7 @@
 package messaging.message;
 
+import java.util.Set;
+
 import communication.Address;
 import storage.datastructure.MultipartTimestamp;
 
@@ -21,7 +23,7 @@ public class QueryMessage extends IPMessage
 	 * @param operation
 	 * @param qmid {@link MessageGid} of this query message
 	 */
-	public QueryMessage(Address sender_addr, MultipartTimestamp label, String operation, MessageGid qmid)
+	public QueryMessage(Address sender_addr, Set<MessageGid> deps, MultipartTimestamp label, String operation, MessageGid qmid)
 	{
 		super(sender_addr);
 
@@ -29,14 +31,17 @@ public class QueryMessage extends IPMessage
 		this.op = operation;
 		
 		super.msg_id = qmid;
+		super.deps = deps;
 	}
 
-	public QueryMessage(MultipartTimestamp prev, String op)
+	public QueryMessage(Set<MessageGid> deps, MultipartTimestamp prev, String op)
 	{
 		super(null);
 
 		this.prev = prev;
 		this.op = op;
+		
+		super.deps = deps;
 	}
 
 	public MultipartTimestamp getPrev(){

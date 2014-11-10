@@ -28,7 +28,7 @@ public abstract class IPMessage implements Serializable
 	private long causal_time = 0L;
 	private long ack_time = 0L;
 
-	private Set<MessageGid> deps = new HashSet<>();
+	protected Set<MessageGid> deps = new HashSet<>();
 
 	public IPMessage(Address addr)
 	{
@@ -77,6 +77,11 @@ public abstract class IPMessage implements Serializable
 	public void setAckTime(long time)
 	{
 		this.ack_time = time;
+	}
+	
+	public Set<MessageGid> getDeps()
+	{
+		return this.deps;
 	}
 	
 	@Override
