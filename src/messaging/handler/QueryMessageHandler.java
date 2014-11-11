@@ -1,22 +1,24 @@
 package messaging.handler;
 
-import org.apache.log4j.Logger;
-
 import messaging.message.IPMessage;
 import messaging.message.QueryMessage;
 import storage.Replica;
 import storage.datastructure.MultipartTimestamp;
+import util.log4j.TimeLogger;
 import application.message.QueryAckMessage;
+
 import communication.CommunicationService;
 
 public class QueryMessageHandler implements IMessageHandler 
 {
-	Logger logger = Logger.getLogger(QueryMessageHandler.class.getName());
-
-	public void handleMessage(IPMessage msg)
+	/**
+	 * @return <code>true</code> if this {@link QueryMessage} has been executed;
+	 * 	<code>false</code>, otherwise.
+	 */
+	@Override
+	public boolean handleMessage(IPMessage msg)
 	{
-		msg.setEventualTime(System.currentTimeMillis());
-		logger.info(msg.getMsgGid() + "\t Eventual Time \t" + msg.getEventualTime());
+		TimeLogger.recordEventualTime(msg);
 
 		QueryMessage query_msg = (QueryMessage) msg;
 
@@ -37,6 +39,13 @@ public class QueryMessageHandler implements IMessageHandler
 
 			QueryAckMessage query_ack_msg = new QueryAckMessage(query_msg.getMsgGid(), val_ts);
 			CommunicationService.INSTACNE.sendMsg(msg.getSenderAddr(), query_ack_msg);
+			
+			// for experiment: (1) delete deps from other messages
+			
+			// for experiment: (2) record the "causal time"
+			TimeLogger.recordCausalTime(query_ack_msg);
+			
+			return true;
 		}
 		else
 		{
@@ -46,6 +55,7 @@ public class QueryMessageHandler implements IMessageHandler
 			 * @see {@link GossipMessageHandler}
 			 */
 			Replica.INSTANCE.delayQueryMessage(query_msg);
+			return false;
 		}
 	}
 

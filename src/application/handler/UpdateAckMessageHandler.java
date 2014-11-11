@@ -12,7 +12,7 @@ public class UpdateAckMessageHandler implements IMessageHandler
 	private static Logger logger = Logger.getLogger(UpdateAckMessageHandler.class.getName());
 
 	@Override
-	public void handleMessage(IPMessage msg)
+	public boolean handleMessage(IPMessage msg)
 	{
 		UpdateAckMessage update_ack_msg = (UpdateAckMessage) msg;
 
@@ -20,6 +20,8 @@ public class UpdateAckMessageHandler implements IMessageHandler
 		logger.info(" *********** Receive an UpdateAckMessage: " + update_ack_msg.toString() + " **************");
 
 		Client.INSTANCE.receiveUpdateAckMessage(update_ack_msg);
+		
+		return true;
 	}
 
 }

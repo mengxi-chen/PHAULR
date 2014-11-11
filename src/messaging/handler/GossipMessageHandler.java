@@ -21,8 +21,8 @@ import storage.datastructure.MultipartTimestamp;
 
 public class GossipMessageHandler implements IMessageHandler
 {
-
-	public void handleMessage(IPMessage msg)
+	@Override
+	public boolean handleMessage(IPMessage msg)
 	{
 		GossipMessage gossip_msg = (GossipMessage) msg;
 
@@ -38,7 +38,7 @@ public class GossipMessageHandler implements IMessageHandler
 				Replica.INSTANCE.getTsTable().getReplicaTs(gossip_msg.getRid()));
 
 		if(gossip_msg_ts.compareTo(gossip_sender_latest_rep_ts) <= 0)
-			return;
+			return true;
 
 		/*
 		 * (1) Add the new information in the gossip message to the replica's log
@@ -85,11 +85,22 @@ public class GossipMessageHandler implements IMessageHandler
 		 * (7) Added: processing the blocked {@link QueryMessage}s
 		 * @see {@link QueryMessageHandler}
 		 */
+		QueryMessage query_msg = null;
 		for (Iterator<Map.Entry<MessageGid, QueryMessage>> iter = Replica.INSTANCE.getQueryMessageWaitingQueue().entrySet().iterator();
 				iter.hasNext(); )
 		{
-			new QueryMessageHandler().handleMessage(iter.next().getValue());
+			query_msg = iter.next().getValue();
+			if (new QueryMessageHandler().handleMessage(query_msg))
+			{
+				// TODO: delete dependency on it
+				Replica.INSTANCE.removeDepsOn(query_msg.getMsgGid());
+				
+				// this {@link QueryMessage} has been executed.
+				iter.remove();
+			}
 		}
+		
+		return true;
 	}
 
 	/**
@@ -170,6 +181,12 @@ public class GossipMessageHandler implements IMessageHandler
 				System.out.println("----- Applying log record: " + log_record.toString() + " -----");
 				// val = apply(val, r.op);
 				Replica.INSTANCE.getInval().addUmid(umid);
+				
+				// delete from waiting queue
+				Replica.INSTANCE.removeUpdateMessage(log_record.getUpdateMessage());
+				
+				// TODO: for experiment: delete deps
+				Replica.INSTANCE.removeDepsOn(umid);
 			}
 
 			Replica.INSTANCE.getValTs().merge(log_record.getTs());

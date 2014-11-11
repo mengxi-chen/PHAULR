@@ -8,13 +8,15 @@ import application.message.QueryAckMessage;
 public class QueryACKMessageHandler implements IMessageHandler {
 
 	@Override
-	public void handleMessage(IPMessage msg)
+	public boolean handleMessage(IPMessage msg)
 	{
 		QueryAckMessage query_ack_msg = (QueryAckMessage) msg;
 
 //		System.out.println("************ Receive an QueryAckMessage: " + query_ack_msg.toString());
 
 		Client.INSTANCE.receiveQueryAckMessage(query_ack_msg);
+		
+		return true;
 	}
 
 }

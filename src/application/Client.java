@@ -2,7 +2,6 @@ package application;
 
 import messaging.message.QueryMessage;
 import messaging.message.UpdateMessage;
-import storage.datastructure.MultipartTimestamp;
 import application.message.QueryAckMessage;
 import application.message.UpdateAckMessage;
 

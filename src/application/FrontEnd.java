@@ -18,10 +18,8 @@ import messaging.message.IPMessage;
 import messaging.message.MessageGid;
 import messaging.message.QueryMessage;
 import messaging.message.UpdateMessage;
-
-import org.apache.log4j.Logger;
-
 import storage.datastructure.MultipartTimestamp;
+import util.log4j.TimeLogger;
 import application.message.QueryAckMessage;
 import application.message.UpdateAckMessage;
 
@@ -38,7 +36,7 @@ import communication.Configuration;
  */
 public class FrontEnd
 {
-	Logger logger = Logger.getLogger(FrontEnd.class.getName());
+//	Logger logger = Logger.getLogger(FrontEnd.class.getName());
 	
 	// my own address
 	private Address addr;
@@ -127,9 +125,8 @@ public class FrontEnd
 	{
 		MessageGid umid = new MessageGid(this.addr, seqno++);
 		IPMessage update_msg = new UpdateMessage(this.addr, deps, prev, op, umid);
-		update_msg.setIssueTime(System.currentTimeMillis());
 		
-		logger.info(update_msg.getMsgGid() + "\t Issue Time \t" + update_msg.getIssueTime());
+		TimeLogger.recordIssueTime(update_msg);
 		
 		CommunicationService.INSTACNE.sendMsg(this.default_contact_replica_addr, update_msg);
 
@@ -147,10 +144,9 @@ public class FrontEnd
 	{
 		MessageGid qmid = new MessageGid(this.addr, seqno++);
 		QueryMessage query_msg = new QueryMessage(this.addr, deps, prev, op, qmid);
-		query_msg.setIssueTime(System.currentTimeMillis());
 		
-		logger.info(query_msg.getMsgGid() + "\t Issue Time \t" + query_msg.getIssueTime());
-
+		TimeLogger.recordIssueTime(query_msg);
+		
 		CommunicationService.INSTACNE.sendMsg(this.default_contact_replica_addr, query_msg);
 
 		this.msg_waiting_queue.put(qmid, query_msg);
@@ -163,27 +159,21 @@ public class FrontEnd
 	 */
 	public void processUpdateAckMessage(UpdateAckMessage update_ack_msg)
 	{
-		update_ack_msg.setAckTime(System.currentTimeMillis());
+		TimeLogger.recordAckTime(update_ack_msg);
 		
 		MessageGid umid = update_ack_msg.getUmid();
-
-		logger.info(umid + "\t Ack Time \t" + update_ack_msg.getAckTime());
-
+		
 		this.msg_waiting_queue.remove(umid);
-
 		this.mid_ts_map.put(umid, update_ack_msg.getUpdateTs());
 	}
 
 	public void processQueryAckMessage(QueryAckMessage query_ack_msg)
 	{
-		query_ack_msg.setAckTime(System.currentTimeMillis());
+		TimeLogger.recordAckTime(query_ack_msg);
 		
 		MessageGid qmid = query_ack_msg.getQmid();
 
-		logger.info(qmid + "\t Ack Time \t" + query_ack_msg.getAckTime());
-
 		this.msg_waiting_queue.remove(qmid);
-
 		this.mid_ts_map.put(qmid, query_ack_msg.getQueryResultTs());
 	}
 

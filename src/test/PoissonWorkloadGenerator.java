@@ -23,7 +23,6 @@ import org.uncommons.maths.random.MersenneTwisterRNG;
 
 import storage.datastructure.MultipartTimestamp;
 import application.Client;
-import application.FrontEnd;
 
 public class PoissonWorkloadGenerator implements Runnable
 {

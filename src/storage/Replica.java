@@ -10,10 +10,12 @@ import java.util.HashMap;
 
 import messaging.message.MessageGid;
 import messaging.message.QueryMessage;
+import messaging.message.UpdateMessage;
 import storage.datastructure.InVal;
 import storage.datastructure.Logs;
 import storage.datastructure.MultipartTimestamp;
 import storage.datastructure.TsTable;
+import util.log4j.TimeLogger;
 
 import communication.Address;
 import communication.Broadcast;
@@ -40,10 +42,10 @@ public enum Replica
 
 	// queue consisting of {@link QueryMessage}s that wait to be processed
 	private HashMap<MessageGid, QueryMessage> query_msg_waiting_queue = new HashMap<>();
+	// queue consisting of {@link UpdateMessage} that wait to be processed
+	private HashMap<MessageGid, UpdateMessage> update_msg_waiting_queue = new HashMap<>();
 
 	private Logs log = new Logs();
-
-//	private ExecutedLoglist executedLoglist;//is related to value
 
 	/**
 	 * Configure this replica and initialize its state.
@@ -166,6 +168,44 @@ public enum Replica
 		this.query_msg_waiting_queue.put(query_msg.getMsgGid(), query_msg);
 	}
 
+	public HashMap<MessageGid, UpdateMessage> getUpdateMessageWaitingQueue()
+	{
+		return this.update_msg_waiting_queue;
+	}
+	
+	public void delayUpdateMessage(UpdateMessage update_msg)
+	{
+		this.update_msg_waiting_queue.put(update_msg.getMsgGid(), update_msg);
+	}
+	
+	public void removeUpdateMessage(UpdateMessage update_msg)
+	{
+		this.update_msg_waiting_queue.remove(update_msg.getMsgGid());
+	}
+	
+	/**
+	 * The message with this specified {@link MessageGid} has been executed.
+	 * Remove deps on it.
+	 * 
+	 * @param msg_id
+	 */
+	public void removeDepsOn(MessageGid msg_id)
+	{
+		// from update message waiting queue
+		for (UpdateMessage update_msg : this.update_msg_waiting_queue.values())
+		{
+			if (update_msg.deleteDep(msg_id))
+				TimeLogger.recordDepTime(update_msg);
+		}
+		
+		// from query message waiting queue
+		for (QueryMessage query_msg : this.query_msg_waiting_queue.values())
+		{
+			if (query_msg.deleteDep(msg_id))
+				TimeLogger.recordDepTime(query_msg);
+		}
+	}
+	
 	public static void main(String[] args)
 	{
 		Configuration.INSTANCE.configSystem();

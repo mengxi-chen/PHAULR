@@ -1,23 +1,21 @@
 package messaging.handler;
 
-import org.apache.log4j.Logger;
-
 import messaging.message.IPMessage;
 import messaging.message.UpdateMessage;
 import storage.Replica;
 import storage.datastructure.LogRecord;
 import storage.datastructure.MultipartTimestamp;
+import util.log4j.TimeLogger;
 import application.message.UpdateAckMessage;
+
 import communication.CommunicationService;
 
 public class UpdateMessageHandler implements IMessageHandler
 {
-	private static Logger logger = Logger.getLogger(UpdateMessageHandler.class.getName());
-
-	public void handleMessage(IPMessage msg)
+	@Override
+	public boolean handleMessage(IPMessage msg)
 	{
-		msg.setEventualTime(System.currentTimeMillis());
-		logger.info(msg.getMsgGid() + "\t Eventual Time \t" + msg.getEventualTime());
+		TimeLogger.recordEventualTime(msg);
 		
 		UpdateMessage update_msg = (UpdateMessage) msg;
 		
@@ -60,6 +58,15 @@ public class UpdateMessageHandler implements IMessageHandler
 			val_ts.merge(update_ts);
 			// (3) to avoid duplicate, keep record that this {@link UpdateMessage} has been executed
 			Replica.INSTANCE.getInval().addUmid(update_msg);
+			
+			// TODO: for experiment: delete the dependency on it from other messages
+			
+			// for experiment: record the "causal time"
+			TimeLogger.recordCausalTime(update_msg);
+		}
+		else 
+		{
+			Replica.INSTANCE.delayUpdateMessage(update_msg);
 		}
 
 		/**
@@ -68,6 +75,8 @@ public class UpdateMessageHandler implements IMessageHandler
 		 */
 		UpdateAckMessage udpate_ack_msg = new UpdateAckMessage(update_msg);
 		CommunicationService.INSTACNE.sendMsg(msg.getSenderAddr(), udpate_ack_msg);
+		
+		return true;
 	}
 
 	private void advanceRepTs(int rid)
