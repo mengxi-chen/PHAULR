@@ -44,11 +44,13 @@ public class QueryMessage extends IPMessage
 		super.deps = deps;
 	}
 
-	public MultipartTimestamp getPrev(){
+	public MultipartTimestamp getPrev()
+	{
 		return this.prev;
 	}
 
-	public String getOp(){
+	public String getOp()
+	{
 		return this.op;
 	}
 
