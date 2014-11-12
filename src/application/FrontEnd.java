@@ -159,6 +159,7 @@ public class FrontEnd
 	 */
 	public void processUpdateAckMessage(UpdateAckMessage update_ack_msg)
 	{
+		System.out.println("UpdateAckMessage: " + update_ack_msg.toString());
 		TimeLogger.recordAckTime(update_ack_msg);
 		
 		MessageGid umid = update_ack_msg.getUmid();

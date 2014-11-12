@@ -31,6 +31,7 @@ public class PoissonWorkloadGenerator implements Runnable
 
 	private int total_requests;
 	private int rate;
+	private int write_ratio;
 
 	// used to generate number sequence accordance with some specified distribution (here, it is exponential distribution)
 	private NumberGenerator<Double> exp_interarrival_gen = null;
@@ -45,8 +46,9 @@ public class PoissonWorkloadGenerator implements Runnable
 	 * 	between {@link PoissonWorkloadGenerator} and {@link Executor}
 	 * @param total_requests {@link #total_requests}: total number of requests in the workload to generate
 	 * @param rate {@link #rate}: arrival rate of requests (Poisson process)
+	 * @param write_ratio {@link #write_ratio}: the ratio of write requests in percentage
 	 */
-	public PoissonWorkloadGenerator(BlockingQueue<IPMessage> request_queue, int total_requests, int rate)
+	public PoissonWorkloadGenerator(BlockingQueue<IPMessage> request_queue, int total_requests, int rate, int write_ratio)
 	{
 		this.request_queue = request_queue;
 		this.total_requests = total_requests;
@@ -72,8 +74,8 @@ public class PoissonWorkloadGenerator implements Runnable
 		Set<MessageGid> deps = Client.INSTANCE.getFrontEnd().generateRandomDeps();
 		MultipartTimestamp prev = Client.INSTANCE.getFrontEnd().generateMpts(deps);
 		
-		boolean type = this.rand_type.nextBoolean();
-		if (type)	// issue an update request
+		int range = this.rand_type.nextInt(100);
+		if (range < this.write_ratio)	// issue an update request
 			return new UpdateMessage(deps, prev, "UPDATE");
 		else	// issue a query request
 			return new QueryMessage(deps, prev, "QUERY");

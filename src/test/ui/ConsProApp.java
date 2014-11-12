@@ -15,7 +15,6 @@ import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
-import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.border.EmptyBorder;
@@ -30,6 +29,8 @@ import communication.Configuration;
 
 public class ConsProApp extends JFrame implements ActionListener, ItemListener
 {
+	private static final long serialVersionUID = -7775787854246869928L;
+	
 	public static String APP = "ConsProApp";
 
 	public static String REPLICA_BTN = "Replica";
@@ -44,8 +45,6 @@ public class ConsProApp extends JFrame implements ActionListener, ItemListener
 	public static String BROADCAST_BTN = "Broadcast";
 	public static String BROADCAST_BTN_ACTION = "BroadcastAction";
 
-	private static final long serialVersionUID = -7775787854246869928L;
-
 	private JPanel contentPane;
 
 	private ButtonGroup role_grp;
@@ -56,11 +55,15 @@ public class ConsProApp extends JFrame implements ActionListener, ItemListener
 	private JTextField client_addr_txt;
 	private JComboBox<Address> default_replica_combo_box;
 
+	/**
+	 * workload related
+	 */
+	private JTextField total_request_txt;
+	private JTextField rate_txt;
+	private JTextField write_ratio_txt;
+	
 	private JButton start_btn;
 	private JButton broadcast_btn;
-
-	private JTextArea console_txtarea;
-//	private JScrollPane console_pane;
 
 	/**
 	 * Create the frame.
@@ -69,8 +72,8 @@ public class ConsProApp extends JFrame implements ActionListener, ItemListener
 	{
 		setTitle(ConsProApp.APP);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 450, 600);
-		setPreferredSize(new Dimension(450, 600));
+		setBounds(100, 100, 600, 300);
+		setPreferredSize(new Dimension(600, 300));
 
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -106,6 +109,7 @@ public class ConsProApp extends JFrame implements ActionListener, ItemListener
 		 */
 		broadcast_btn = new JButton(ConsProApp.BROADCAST_BTN);
 		broadcast_btn.setActionCommand(ConsProApp.BROADCAST_BTN_ACTION);
+		broadcast_btn.setToolTipText("Running the gossip protocol.");
 		broadcast_btn.addActionListener(this);
 		broadcast_btn.setEnabled(false);
 
@@ -115,6 +119,7 @@ public class ConsProApp extends JFrame implements ActionListener, ItemListener
 		client_addr_txt = new JTextField();
 		client_addr_txt.setEnabled(false);
 		client_addr_txt.setText("127.0.0.1 : 21000");
+		client_addr_txt.setToolTipText("Input client address of the form IP : Port.");
 		client_addr_txt.setColumns(15);
 
 		/**
@@ -122,24 +127,34 @@ public class ConsProApp extends JFrame implements ActionListener, ItemListener
 		 */
 		default_replica_combo_box = new JComboBox<Address>(Configuration.INSTANCE.getReplicaPool());
 		default_replica_combo_box.setEnabled(false);
-
+		default_replica_combo_box.setToolTipText("Choose the default replica to contact.");
+		/**
+		 * Workload parameters
+		 */
+		this.rate_txt = new JTextField();
+		this.rate_txt.setText("(ops/sec)");
+		this.rate_txt.setEnabled(false);
+		this.rate_txt.setColumns(10);
+		this.rate_txt.setToolTipText("Input the rate in which the requests arrive.");
+		
+		this.write_ratio_txt = new JTextField();
+		this.write_ratio_txt.setText("(write ratio)");
+		this.write_ratio_txt.setEnabled(false);
+		this.write_ratio_txt.setColumns(10);
+		this.write_ratio_txt.setToolTipText("Input the write ratio (%)");
+		
+		this.total_request_txt = new JTextField();
+		this.total_request_txt.setText("(number of requests)");
+		this.total_request_txt.setEnabled(false);
+		this.total_request_txt.setColumns(15);
+		this.total_request_txt.setToolTipText("Input the number of requests.");
 		/**
 		 * Start button
 		 */
 		start_btn = new JButton(ConsProApp.START_BTN);
 		start_btn.setActionCommand(ConsProApp.START_BTN_ACTION);
 		start_btn.addActionListener(this);
-
-//		/**
-//		 * Redirect the system console output to the JTextArea GUI.
-//		 */
-//		console_txtarea = new JTextArea("----- Console here ----- \n", Integer.MAX_VALUE, Integer.MAX_VALUE);
-//		console_txtarea.setPreferredSize(new Dimension(200, 300));
-//        TextAreaOutputStream taos = new TextAreaOutputStream(console_txtarea, Integer.MAX_VALUE);
-//        PrintStream ps = new PrintStream(taos);
-//        System.setOut(ps);
-//        System.setErr(ps);
-//        console_pane = new JScrollPane(console_txtarea);
+		start_btn.setToolTipText("Start to run.");
 
 		/**
 		 * Adding to this panel in group layout
@@ -157,27 +172,34 @@ public class ConsProApp extends JFrame implements ActionListener, ItemListener
 		group_layout.setHorizontalGroup(
 				group_layout.createParallelGroup(Alignment.LEADING)
 					.addGroup(group_layout.createSequentialGroup()
+						.addGap(300)
+						.addComponent(start_btn)
+						.addContainerGap(150, Short.MAX_VALUE))
+					.addGroup(group_layout.createSequentialGroup()
 						.addContainerGap()
-						.addGroup(group_layout.createParallelGroup(Alignment.TRAILING)
-							.addGroup(group_layout.createSequentialGroup()
+//						.addGroup(group_layout.createParallelGroup(Alignment.TRAILING)
+//							.addGroup(group_layout.createSequentialGroup()
 								.addGroup(group_layout.createParallelGroup(Alignment.LEADING)
 									.addComponent(replica_radio_btn)
 									.addComponent(client_radio_btn))
-								.addGap(37)
+								.addGap(30)
 								.addGroup(group_layout.createParallelGroup(Alignment.LEADING)
-									.addComponent(replica_combo_box, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-									.addComponent(client_addr_txt, GroupLayout.PREFERRED_SIZE, 82, GroupLayout.PREFERRED_SIZE))
-								.addPreferredGap(ComponentPlacement.RELATED, 121, Short.MAX_VALUE)
-								.addGroup(group_layout.createParallelGroup(Alignment.TRAILING)
-									.addComponent(broadcast_btn)
-									.addComponent(default_replica_combo_box, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)))
-//							.addComponent(console_pane, Alignment.LEADING, GroupLayout.PREFERRED_SIZE, 400, GroupLayout.PREFERRED_SIZE)
-							)
-						.addContainerGap(24, Short.MAX_VALUE))
-					.addGroup(group_layout.createSequentialGroup()
-						.addGap(177)
-						.addComponent(start_btn)
-						.addContainerGap(184, Short.MAX_VALUE))
+								.addGroup(group_layout.createSequentialGroup()
+									.addComponent(this.total_request_txt, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+									.addGap(20)
+									.addComponent(this.rate_txt, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+									.addGap(20)
+									.addComponent(this.write_ratio_txt, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+									.addGap(20))
+								.addGroup(group_layout.createSequentialGroup()
+									.addGroup(group_layout.createParallelGroup(Alignment.LEADING)
+										.addComponent(replica_combo_box, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+										.addComponent(client_addr_txt, GroupLayout.PREFERRED_SIZE, 82, GroupLayout.PREFERRED_SIZE))
+									.addPreferredGap(ComponentPlacement.RELATED, 40, Short.MAX_VALUE)
+									.addGroup(group_layout.createParallelGroup(Alignment.TRAILING)
+										.addComponent(broadcast_btn)
+										.addComponent(default_replica_combo_box, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+									.addContainerGap(20, Short.MAX_VALUE))))
 			);
 
 			group_layout.setVerticalGroup(
@@ -188,16 +210,21 @@ public class ConsProApp extends JFrame implements ActionListener, ItemListener
 							.addComponent(replica_radio_btn)
 							.addComponent(replica_combo_box, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
 							.addComponent(broadcast_btn))
-						.addGap(18)
+						.addGap(20)
 						.addGroup(group_layout.createParallelGroup(Alignment.BASELINE)
 							.addComponent(client_radio_btn)
 							.addComponent(client_addr_txt, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
 							.addComponent(default_replica_combo_box, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-						.addGap(18)
-						.addComponent(start_btn)
-						.addGap(18)
-//						.addComponent(console_pane, GroupLayout.PREFERRED_SIZE, 400, GroupLayout.PREFERRED_SIZE)
-						.addContainerGap(41, Short.MAX_VALUE))
+						.addGap(20)
+//						.addPreferredGap(ComponentPlacement.RELATED, 10, Short.MAX_VALUE)
+						.addGroup(group_layout.createParallelGroup(Alignment.BASELINE)
+							.addComponent(this.total_request_txt, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+							.addComponent(this.rate_txt, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+							.addComponent(this.write_ratio_txt, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+						.addGap(45)
+						.addComponent(start_btn))
+//						.addGap(18)
+//						.addContainerGap(41, Short.MAX_VALUE))
 			);
 
 		contentPane.setLayout(group_layout);
@@ -242,10 +269,6 @@ public class ConsProApp extends JFrame implements ActionListener, ItemListener
 			// act as a client
 			else // role.equals(ConsProApp.CLIENT_BTN_ACTION)
 			{
-				// for log4j configuration
-//				appender.setFile(Configuration.CLIENT_LOG_FILE);
-//				BasicConfigurator.configure(appender);
-
 				/**
 				 * Write the user-input client address and the chosen default replica address into
 				 * the Configuration.CONFIG_CLIENT_FILE file.
@@ -258,8 +281,12 @@ public class ConsProApp extends JFrame implements ActionListener, ItemListener
 				client_config.append(client_addr).append("\n").append(default_replica_addr);
 				FileUtil.write2File(Configuration.CONFIG_CLIENT_FILE, client_config.toString());
 
+				int total_request = Integer.parseInt(this.total_request_txt.getText().trim());
+				int rate = Integer.parseInt(this.rate_txt.getText().trim());
+				int write_ratio = Integer.parseInt(this.write_ratio_txt.getText().trim());
+				
 				// run the benchmark
-				new ConsProBenchmarkRunner(10000, 20).start();
+				new ConsProBenchmarkRunner(total_request, rate, write_ratio).start();
 			}
 
 			this.replica_radio_btn.setEnabled(false);
@@ -292,12 +319,19 @@ public class ConsProApp extends JFrame implements ActionListener, ItemListener
 
 				this.client_addr_txt.setEnabled(false);
 				this.default_replica_combo_box.setEnabled(false);
+				
+				this.rate_txt.setEnabled(false);
+				this.write_ratio_txt.setEnabled(false);
+				this.total_request_txt.setEnabled(false);
 			}
 			else // role.equals(ConsProApp.CLIENT_BTN_ACTION)
 			{
 				this.client_addr_txt.setEnabled(true);
 				this.default_replica_combo_box.setEnabled(true);
-
+				this.rate_txt.setEnabled(true);
+				this.write_ratio_txt.setEnabled(true);
+				this.total_request_txt.setEnabled(true);
+				
 				this.replica_combo_box.setEnabled(false);
 			}
 		}

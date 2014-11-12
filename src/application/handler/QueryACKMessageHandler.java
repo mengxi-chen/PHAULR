@@ -12,7 +12,7 @@ public class QueryACKMessageHandler implements IMessageHandler {
 	{
 		QueryAckMessage query_ack_msg = (QueryAckMessage) msg;
 
-//		System.out.println("************ Receive an QueryAckMessage: " + query_ack_msg.toString());
+		System.out.println("************ Receive an QueryAckMessage: " + query_ack_msg.toString());
 
 		Client.INSTANCE.receiveQueryAckMessage(query_ack_msg);
 		
