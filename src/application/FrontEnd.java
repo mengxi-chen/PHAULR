@@ -36,8 +36,6 @@ import communication.Configuration;
  */
 public class FrontEnd
 {
-//	Logger logger = Logger.getLogger(FrontEnd.class.getName());
-	
 	// my own address
 	private Address addr;
 
@@ -103,7 +101,6 @@ public class FrontEnd
 
 	public FrontEnd()
 	{
-//		Configuration.INSTANCE.configSystem();
 		this.configFrontEnd();
 		FrontEnd.exec.execute(this.resend_msg_daemon);
 	}
@@ -159,10 +156,9 @@ public class FrontEnd
 	 */
 	public void processUpdateAckMessage(UpdateAckMessage update_ack_msg)
 	{
-		System.out.println("UpdateAckMessage: " + update_ack_msg.toString());
 		TimeLogger.recordAckTime(update_ack_msg);
 		
-		MessageGid umid = update_ack_msg.getUmid();
+		MessageGid umid = update_ack_msg.getMsgGid();
 		
 		this.msg_waiting_queue.remove(umid);
 		this.mid_ts_map.put(umid, update_ack_msg.getUpdateTs());
@@ -172,7 +168,7 @@ public class FrontEnd
 	{
 		TimeLogger.recordAckTime(query_ack_msg);
 		
-		MessageGid qmid = query_ack_msg.getQmid();
+		MessageGid qmid = query_ack_msg.getMsgGid();
 
 		this.msg_waiting_queue.remove(qmid);
 		this.mid_ts_map.put(qmid, query_ack_msg.getQueryResultTs());

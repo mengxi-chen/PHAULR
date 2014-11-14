@@ -59,8 +59,8 @@ public class UpdateMessageHandler implements IMessageHandler
 			// (3) to avoid duplicate, keep record that this {@link UpdateMessage} has been executed
 			Replica.INSTANCE.getInval().addUmid(update_msg);
 			
-			// TODO: for experiment: delete the dependency on it from other messages
-			
+			// FIXME: for experiment: delete the dependency on it from other messages
+			Replica.INSTANCE.removeDepsOn(update_msg.getMsgGid());
 			// for experiment: record the "causal time"
 			TimeLogger.recordCausalTime(update_msg);
 		}

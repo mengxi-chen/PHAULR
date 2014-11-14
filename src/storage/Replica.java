@@ -191,6 +191,8 @@ public enum Replica
 	 */
 	public void removeDepsOn(MessageGid msg_id)
 	{
+		// FIXME: test this method
+		
 		// from update message waiting queue
 		for (UpdateMessage update_msg : this.update_msg_waiting_queue.values())
 		{

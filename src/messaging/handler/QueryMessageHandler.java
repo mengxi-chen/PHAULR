@@ -35,7 +35,7 @@ public class QueryMessageHandler implements IMessageHandler
 			/*
 			 * apply q.op to val and return result and val_ts
 			 */
-			//				val = apply(val, query_msg.get_op());
+			//	val = apply(val, query_msg.get_op());
 
 			QueryAckMessage query_ack_msg = new QueryAckMessage(query_msg.getMsgGid(), val_ts);
 			CommunicationService.INSTACNE.sendMsg(msg.getSenderAddr(), query_ack_msg);

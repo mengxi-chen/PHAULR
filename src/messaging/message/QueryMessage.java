@@ -13,8 +13,6 @@ public class QueryMessage extends IPMessage
 	private MultipartTimestamp prev;
 	private String op;
 
-//	private MessageGid qmid;
-
 	/**
 	 * Constructor of {@link QueryMessage}
 	 *

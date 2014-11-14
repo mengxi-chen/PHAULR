@@ -53,6 +53,7 @@ public class PoissonWorkloadGenerator implements Runnable
 		this.request_queue = request_queue;
 		this.total_requests = total_requests;
 		this.rate = rate;
+		this.write_ratio = write_ratio;
 
 		this.exp_interarrival_gen = new ExponentialGenerator(this.rate, new MersenneTwisterRNG());
 	}
