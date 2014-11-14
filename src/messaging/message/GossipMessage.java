@@ -45,6 +45,10 @@ public class GossipMessage extends IPMessage
 		return sender_replica_rid;
 	}
 
+	public boolean hasContent()
+	{
+		return this.sender_replica_ts != null && this.sender_replica_log.getSize() > 0;
+	}
 	public String toString()
 	{
 		StringBuilder sb = new StringBuilder();

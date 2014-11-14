@@ -1,11 +1,15 @@
 package storage.datastructure;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
 import messaging.message.MessageGid;
 
-public class Logs {
+public class Logs implements Serializable 
+{
+	private static final long serialVersionUID = 6531676830190572158L;
+
 	private HashMap<MessageGid, LogRecord> log_map = new HashMap<>();
 
 	public Logs() {
@@ -15,11 +19,6 @@ public class Logs {
 	{
 		this.log_map.put(log_record.getUmid(), log_record);
 	}
-
-//	private void addLogRecord(MessageGid mid, LogRecord log_record)
-//	{
-//		this.log_map.put(mid, log_record);
-//	}
 
 	/**
 	 * Merge another {@link Logs} into this one.
@@ -50,5 +49,10 @@ public class Logs {
 
     public void remove_logrecord(LogRecord logRecord){
     	log_map.remove(logRecord.getUmid());
+    }
+    
+    public int getSize()
+    {
+    	return this.log_map.size();
     }
 }

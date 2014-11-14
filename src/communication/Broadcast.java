@@ -19,9 +19,13 @@ public class Broadcast
 		@Override
 		public void run()
 		{
+			GossipMessage gossip_msg = new GossipMessage();
+			if (! gossip_msg.hasContent())
+				return;
+			
 			for (Address dest_addr : Configuration.INSTANCE.getReplicaPool())
 				if (! Broadcast.this.broadcaster.equals(dest_addr))
-					CommunicationService.INSTACNE.sendMsg(dest_addr, new GossipMessage());
+					CommunicationService.INSTACNE.sendMsg(dest_addr, gossip_msg);
 		}
 	};
 
